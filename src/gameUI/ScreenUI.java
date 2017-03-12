@@ -10,8 +10,11 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class ScreenUI extends JPanel{
-	public String clickBox[][] = new String[3][3];
+	// TODO: remove global variables
+	public char gameGrid[][] = {{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}};
 	public int turn = 0;
+	public boolean game_finished = false;
+	public char last_player = ' ';
 
 	public ScreenUI(){
 		MouseHandler mouse = new MouseHandler();
@@ -46,21 +49,22 @@ public class ScreenUI extends JPanel{
 	}
 
 	public void drawPlayerMoves(Graphics2D g2){
-
 		int width = getBounds().width, height = getBounds().height;
-		int paddingX = (int) (width * 0.11), paddingY = (int) (height * 0.11);
+		int paddingX = (int) (width * 0.115), paddingY = (int) (height * 0.115);
+		int paddingCircleX = (int) (width * 0.095), paddingCircleY = (int) (height * 0.095);
 		int sizeX = (int) (width * 0.15), sizeY = (int) (height * 0.15);
 
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < 3; j++) {
-				// Draw O
-				if(clickBox[i][j] != null){
-					if(clickBox[i][j] == "X"){
-						g2.drawLine((width / 3 * i) + paddingX, (height / 3 * j) + paddingY, (width / 3 * i) + paddingX * 2, (height / 3 * j) + paddingY * 2);
-						g2.drawLine((width / 3 * i) + (paddingX * 2), (height / 3 * j) + paddingY, (width / 3 * i) + (paddingX), (height / 3 * j) + paddingY * 2);
-					} else if(clickBox[i][j] == "O"){
-						g2.drawArc((width / 3 * i) + paddingX, (height / 3 * j) + paddingY, sizeX, sizeY, 0, 360);
-					}
+				// Draw X or O
+				if(gameGrid[i][j] == 'X'){
+					g2.drawLine((width / 3 * i) + paddingX, (height / 3 * j) + paddingY,
+								(width / 3 * i) + paddingX * 2, (height / 3 * j) + paddingY * 2);
+					g2.drawLine((width / 3 * i) + (paddingX * 2), (height / 3 * j) + paddingY,
+								(width / 3 * i) + (paddingX), (height / 3 * j) + paddingY * 2);
+				} else if(gameGrid[i][j] == 'O'){
+					g2.drawArc((width / 3 * i) + paddingCircleX, (height / 3 * j) + paddingCircleY,
+									sizeX, sizeY, 0, 360);
 				}
 			}
 		}
@@ -68,15 +72,15 @@ public class ScreenUI extends JPanel{
 	
 	public void gameLog(int aux_i, int aux_j, int mouseX, int mouseY){
 		System.out.println("\nBOX " + "["+(aux_i + 1)+"]" + "["+(aux_j + 1)+"]" + " Clicked:" + mouseX + "," + mouseY);
-		System.out.println("Turn = " + turn + "  Player " + clickBox[aux_i][aux_j]);
+		System.out.println("Turn = " + turn + "  Player " + gameGrid[aux_i][aux_j]);
 		
 		// Print Game
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < 3; j++) {
-				if(clickBox[j][i] == null){
+				if(gameGrid[j][i] == ' '){
 					System.out.print("\t|");
 				} else{
-					System.out.print("\t|" + clickBox[j][i]);
+					System.out.print("\t|" + gameGrid[j][i]);
 				}
 			}
 			System.out.println();
@@ -104,22 +108,22 @@ public class ScreenUI extends JPanel{
 					}
 				}
 			}
-			
-			if(clickBox[aux_i][aux_j] != "X" && clickBox[aux_i][aux_j] != "O"){
+			if(gameGrid[aux_i][aux_j] != 'X' && gameGrid[aux_i][aux_j] != 'O' && !game_finished){
 				turn++;
-				
-				if(turn == 9){
-					//endGame();
-				} else if(turn % 2 == 0){
-					clickBox[aux_i][aux_j] = "O";
+				if((turn & 1) == 0){
+					gameGrid[aux_i][aux_j] = 'O';
+					last_player = 'O';
+					repaint();
+					gameLog(aux_i, aux_j, mouseX, mouseY);
 				} else if(turn >= 1){
-					clickBox[aux_i][aux_j] = "X";
-				} 
-				repaint();
+					last_player = 'X';
+					gameGrid[aux_i][aux_j] = 'X';
+					repaint();
+					gameLog(aux_i, aux_j, mouseX, mouseY);
+				}
+				endGame();
 			}
-			gameLog(aux_i, aux_j, mouseX, mouseY);
 		}
-
 		@Override
 		public void mouseEntered(MouseEvent e) {}
 		@Override
@@ -128,5 +132,25 @@ public class ScreenUI extends JPanel{
 		public void mousePressed(MouseEvent e) {}
 		@Override
 		public void mouseReleased(MouseEvent e) {}
+	}
+
+	public void endGame(){
+		if(game_finished){
+			System.out.println("\nPlayer " + last_player + " WON!\n");
+		} else{
+			if ((gameGrid[0][0] == gameGrid[0][1] && gameGrid[0][0] == gameGrid[0][2] && gameGrid[0][0] != ' ')
+					|| (gameGrid[1][0] == gameGrid[1][1] && gameGrid[1][0] == gameGrid[1][2] && gameGrid[1][0] != ' ')
+					|| (gameGrid[2][0] == gameGrid[2][1] && gameGrid[2][0] == gameGrid[2][2] && gameGrid[2][0] != ' ')
+					|| (gameGrid[0][0] == gameGrid[1][0] && gameGrid[0][0] == gameGrid[2][0] && gameGrid[0][0] != ' ')
+					|| (gameGrid[0][1] == gameGrid[1][1] && gameGrid[0][1] == gameGrid[2][1] && gameGrid[0][1] != ' ')
+					|| (gameGrid[0][2] == gameGrid[1][2] && gameGrid[0][2] == gameGrid[2][2] && gameGrid[0][2] != ' ')
+					|| (gameGrid[0][0] == gameGrid[1][1] && gameGrid[0][0] == gameGrid[2][2] && gameGrid[0][0] != ' ')
+					|| (gameGrid[0][2] == gameGrid[1][1] && gameGrid[0][2] == gameGrid[2][0] && gameGrid[0][2] != ' ')){
+				game_finished = true;
+				endGame();
+			} else if(turn == 9){
+				System.out.println("\nDRAW\n");
+			}
+		}
 	}
 }
