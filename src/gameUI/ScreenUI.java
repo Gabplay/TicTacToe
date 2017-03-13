@@ -5,8 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class ScreenUI extends JPanel{
@@ -22,22 +21,24 @@ public class ScreenUI extends JPanel{
 		this.addMouseListener(mouse);
 	}
 
-	public void initFrame(){
+	public void initUI(){
 		JFrame frame = new JFrame();
-		ScreenUI screen = new ScreenUI();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		ScreenUI screen = new ScreenUI();
+		// TODO: add labels to count and show wins
 		frame.add(screen);
-		frame.setSize(400,400);
+		frame.setSize(800,400);
 		frame.setVisible(true);
-		setMinimumSize(getSize());
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		int width = getBounds().width, height = getBounds().height;
+		int width = getBounds().width / 2, height = getBounds().height;
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setStroke(new BasicStroke(7));
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		// Columns
 		g2.drawLine(width / 3, 0, width / 3, height);
@@ -49,7 +50,7 @@ public class ScreenUI extends JPanel{
 	}
 
 	public void drawPlayerMoves(Graphics2D g2){
-		int width = getBounds().width, height = getBounds().height;
+		int width = getBounds().width / 2, height = getBounds().height;
 		int paddingX = (int) (width * 0.115), paddingY = (int) (height * 0.115);
 		int paddingCircleX = (int) (width * 0.095), paddingCircleY = (int) (height * 0.095);
 		int sizeX = (int) (width * 0.15), sizeY = (int) (height * 0.15);
@@ -77,13 +78,15 @@ public class ScreenUI extends JPanel{
 		// Print Game
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < 3; j++) {
-				if(gameGrid[j][i] == ' '){
-					System.out.print("\t|");
+				if(j == 2){
+					System.out.print(" " + gameGrid[j][i]);
 				} else{
-					System.out.print("\t|" + gameGrid[j][i]);
+					System.out.print(" " + gameGrid[j][i] + " |");
 				}
 			}
-			System.out.println();
+			if(i != 2){
+				System.out.println("\n-----------");
+			}
 		}
 	}
 
@@ -94,7 +97,7 @@ public class ScreenUI extends JPanel{
 		public void mouseMoved(MouseEvent e) {}
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			int width = getBounds().width, height = getBounds().height;
+			int width = getBounds().width / 2, height = getBounds().height;
 			int aux_i = 0, aux_j = 0;
 			int mouseX = e.getX(), mouseY = e.getY();
 
@@ -108,7 +111,7 @@ public class ScreenUI extends JPanel{
 					}
 				}
 			}
-			if(gameGrid[aux_i][aux_j] != 'X' && gameGrid[aux_i][aux_j] != 'O' && !game_finished){
+			if(gameGrid[aux_i][aux_j] != 'X' && gameGrid[aux_i][aux_j] != 'O' && !game_finished && mouseX < width){
 				turn++;
 				if((turn & 1) == 0){
 					gameGrid[aux_i][aux_j] = 'O';
@@ -132,6 +135,14 @@ public class ScreenUI extends JPanel{
 		public void mousePressed(MouseEvent e) {}
 		@Override
 		public void mouseReleased(MouseEvent e) {}
+	}
+
+	public void clearGame() {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				gameGrid[i][j] = ' ';
+			}
+		}
 	}
 
 	public void endGame(){
