@@ -22,13 +22,16 @@ public class ScreenUI extends JPanel{
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ScreenUI screen = new ScreenUI();
+		
 		frame.add(screen);
 		frame.setSize(500,500);
+		frame.setTitle("TicTacToe");
 		frame.setVisible(true);
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setStroke(new BasicStroke(7));
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -69,8 +72,8 @@ public class ScreenUI extends JPanel{
 	
 	public void gameLog(int aux_i, int aux_j, int mouseX, int mouseY){
 		char gameGrid[][] = game.getGameGrid();
-		System.out.println("\nBOX " + "["+(aux_i + 1)+"]" + "["+(aux_j + 1)+"]" + " Clicked:" + mouseX + "," + mouseY);
-		System.out.println("\nTurn = " + game.getTurn() + "  Player " + gameGrid[aux_i][aux_j]);
+		System.out.println("\n\nBOX " + "["+(aux_i + 1)+"]" + "["+(aux_j + 1)+"]" + " Clicked on (X:" + mouseX + " / Y:" + mouseY + ")");
+		System.out.println("Turn = " + game.getTurn() + "  Player " + gameGrid[aux_i][aux_j]);
 		
 		// Print gameGrid in console
 		for(int i = 0; i < 3; i++) {
@@ -153,17 +156,19 @@ public class ScreenUI extends JPanel{
 		String scoreboard = "";
 
 		if(game.isGame_finished()){
-			System.out.println("\nPlayer " + game.getLast_player() + " WON!\n");
 
 			if(game.getLast_player() == 'X'){
 				game.setPlayerXWins(game.getPlayerXWins() + 1);
+				System.out.println("\nPlayer X WON!\n");
 				scoreboard += "PLAYER \"X\" WON!\n";
 			} else if(game.getLast_player() == 'O'){
 				game.setPlayerOWins(game.getPlayerOWins() + 1);
+				System.out.println("\nPlayer O WON!\n");
 				scoreboard += "PLAYER \"O\" WON!\n";
 			} if(game.getLast_player() == 'D'){
-				scoreboard += "DRAW!\n";
 				game.setDraws(game.getDraws() + 1);
+				scoreboard += "DRAW!\n";
+				System.out.println("\nDRAW!\n");
 			}
 
 			scoreboard += "\n\n--------- SCOREBOARD ---------\n" +
